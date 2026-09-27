@@ -23,7 +23,12 @@ KEY FEATURES:
    shells from inner to outer. Only each shell's front (camera-facing) walls
    are drawn, so the nested shells blend in back-to-front order and the far
    walls never show through as extra "phantom" cube outlines.
-4. Centered Layout: all cubes share the world origin, the camera looks at it,
+4. Always Visibly 3D: each cube is first tilted so its corner-to-corner
+   (body) diagonal lies along its spin axis, and every spin axis lies in the
+   screen plane (derived from the camera). A cube's faces are 54.7 degrees
+   from its diagonal, so no face ever turns closer than 35.3 degrees to
+   facing the camera - no cube ever collapses into a flat square.
+5. Centered Layout: all cubes share the world origin, the camera looks at it,
    and the projection follows the window's aspect ratio on resize.
 
 CONTROLS: ESC closes the window.
@@ -37,6 +42,7 @@ CONTROLS: ESC closes the window.
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -51,14 +57,15 @@ const float     FIELD_OF_VIEW_DEG = 45.0f;
 const float     NEAR_PLANE        = 0.1f;
 const float     FAR_PLANE         = 100.0f;
 const glm::vec3 CAMERA_POSITION(0.0f, 1.2f, 7.5f);
-const glm::vec3 CAMERA_TARGET(0.0f, -0.25f, 0.0f); // slightly below center to offset perspective
+const glm::vec3 CAMERA_TARGET(0.0f, 0.0f, 0.0f);
 const glm::vec3 CAMERA_UP(0.0f, 1.0f, 0.0f);
 
 // Light direction (points FROM the surface TOWARD the light), in view space
 const glm::vec3 LIGHT_DIRECTION(0.4f, 0.7f, 0.6f);
 
-// Background color: deep midnight navy
-const glm::vec3 BACKGROUND_COLOR(0.05f, 0.06f, 0.12f);
+// Background color: black, so the window never reads as an extra panel
+// behind the cubes and the glass tints stand out
+const glm::vec3 BACKGROUND_COLOR(0.0f, 0.0f, 0.0f);
 
 // Unit cube: 8 corner vertices shared by all 6 faces (positions only)
 const float CUBE_VERTICES[] = {
@@ -90,16 +97,17 @@ struct CubeSpec {
     float     size;             // edge length in world units
     glm::vec3 color;            // base RGB color
     float     alpha;            // 1.0 = opaque, < 1.0 = glass
-    glm::vec3 rotationAxis;     // axis of spin (need not be unit length)
+    glm::vec2 spinOnScreen;     // spin axis as a screen direction (x = right, y = up)
     float     degreesPerSecond; // spin speed; negative spins the other way
 };
 
 // Ordered inner to outer: the opaque core must be drawn before the glass
-// shells so the shells can blend over it.
+// shells so the shells can blend over it. Each cube tumbles about a
+// different screen direction: diagonal, horizontal and vertical.
 const CubeSpec CUBES[] = {
-    { 1.0f, glm::vec3(1.00f, 0.62f, 0.20f), 1.00f, glm::vec3(1.0f, 1.0f, 0.0f),  90.0f }, // amber core, diagonal axis
-    { 1.9f, glm::vec3(0.20f, 0.85f, 0.75f), 0.35f, glm::vec3(1.0f, 0.0f, 0.0f), -45.0f }, // teal glass, X axis
-    { 2.9f, glm::vec3(0.55f, 0.45f, 1.00f), 0.22f, glm::vec3(0.0f, 1.0f, 0.0f),  30.0f }  // violet glass, Y axis
+    { 1.0f, glm::vec3(1.00f, 0.62f, 0.20f), 1.00f, glm::vec2(1.0f, 1.0f),  90.0f }, // amber core
+    { 1.9f, glm::vec3(0.20f, 0.85f, 0.75f), 0.40f, glm::vec2(1.0f, 0.0f), -45.0f }, // teal glass
+    { 2.9f, glm::vec3(0.55f, 0.45f, 1.00f), 0.32f, glm::vec2(0.0f, 1.0f),  30.0f }  // violet glass
 };
 const int CUBE_COUNT = sizeof(CUBES) / sizeof(CUBES[0]);
 
@@ -233,18 +241,45 @@ GLuint createCubeMesh(GLuint &vbo, GLuint &ebo) {
     return vao;
 }
 
-// Model matrix for one cube at the given time: spin about its axis, then scale
-glm::mat4 cubeModelMatrix(const CubeSpec &cube, float timeSeconds) {
-    glm::mat4 model(1.0f);
-    model = glm::rotate(model, glm::radians(cube.degreesPerSecond * timeSeconds),
-                        glm::normalize(cube.rotationAxis));
+// Fixed orientation of one cube's spin, worked out once at startup
+struct CubeSpin {
+    glm::vec3 axis;  // world-space spin axis, unit length, in the screen plane
+    glm::mat4 tilt;  // turns the cube so its body diagonal lies on the axis
+};
+
+// Turn a screen direction into a world axis and the tilt that puts the
+// cube's (1,1,1) body diagonal onto it. Keeping the axis perpendicular to
+// the line of sight is what guarantees no face ever turns flat to the camera.
+CubeSpin makeCubeSpin(const CubeSpec &cube) {
+    glm::vec3 toCamera    = glm::normalize(CAMERA_POSITION); // cubes sit at the origin
+    glm::vec3 screenRight = glm::normalize(glm::cross(CAMERA_UP, toCamera));
+    glm::vec3 screenUp    = glm::cross(toCamera, screenRight);
+
+    CubeSpin spin;
+    spin.axis = glm::normalize(cube.spinOnScreen.x * screenRight + cube.spinOnScreen.y * screenUp);
+
+    const glm::vec3 bodyDiagonal = glm::normalize(glm::vec3(1.0f));
+    glm::vec3 tiltAxis = glm::cross(bodyDiagonal, spin.axis);
+    float tiltAngle = std::acos(glm::clamp(glm::dot(bodyDiagonal, spin.axis), -1.0f, 1.0f));
+    // A zero-length tilt axis means the diagonal is already (anti)parallel to
+    // the spin axis; either way spinning about it is correct, so no tilt.
+    spin.tilt = glm::length(tiltAxis) > 1e-6f
+                    ? glm::rotate(glm::mat4(1.0f), tiltAngle, glm::normalize(tiltAxis))
+                    : glm::mat4(1.0f);
+    return spin;
+}
+
+// Model matrix for one cube at the given time: scale, tilt, then spin
+glm::mat4 cubeModelMatrix(const CubeSpec &cube, const CubeSpin &spin, float timeSeconds) {
+    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(cube.degreesPerSecond * timeSeconds), spin.axis);
+    model = model * spin.tilt;
     model = glm::scale(model, glm::vec3(cube.size));
     return model;
 }
 
 // Draw every cube in table order: the opaque core, then the glass shells
 // from inner to outer. Back faces are culled for all of them.
-void drawCubes(GLuint program, GLuint vao, float timeSeconds) {
+void drawCubes(GLuint program, GLuint vao, const CubeSpin spins[], float timeSeconds) {
     GLint modelLocation = glGetUniformLocation(program, "uModel");
     GLint colorLocation = glGetUniformLocation(program, "uColor");
     GLint alphaLocation = glGetUniformLocation(program, "uAlpha");
@@ -253,7 +288,7 @@ void drawCubes(GLuint program, GLuint vao, float timeSeconds) {
 
     for (int i = 0; i < CUBE_COUNT; ++i) {
         const CubeSpec &cube = CUBES[i];
-        glm::mat4 model = cubeModelMatrix(cube, timeSeconds);
+        glm::mat4 model = cubeModelMatrix(cube, spins[i], timeSeconds);
         glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
         glUniform3fv(colorLocation, 1, glm::value_ptr(cube.color));
         glUniform1f(alphaLocation, cube.alpha);
@@ -331,6 +366,11 @@ int main() {
     glUniform3fv(glGetUniformLocation(program, "uLightDirection"), 1, glm::value_ptr(lightInViewSpace));
     GLint projectionLocation = glGetUniformLocation(program, "uProjection");
 
+    CubeSpin spins[CUBE_COUNT];
+    for (int i = 0; i < CUBE_COUNT; ++i) {
+        spins[i] = makeCubeSpin(CUBES[i]);
+    }
+
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
@@ -347,7 +387,7 @@ int main() {
 
             glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            drawCubes(program, vao, (float)glfwGetTime());
+            drawCubes(program, vao, spins, (float)glfwGetTime());
         }
 
         glfwSwapBuffers(window);
