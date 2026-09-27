@@ -12,7 +12,7 @@ VIDEO      := castle_sample_output.mp4
 APP_WIDTH  := 1000
 APP_HEIGHT := 700
 
-.PHONY: all run video preview textures clean
+.PHONY: all run video preview textures submission clean
 
 all: $(TARGET)
 
@@ -37,6 +37,15 @@ preview:
 # Regenerate the procedural textures (requires Pillow)
 textures:
 	python3 tools/generate_textures.py textures
+
+# Exactly the files the handout asks you to upload (via a Google Drive
+# link, not zipped): the source file and the sample output video
+submission:
+	rm -rf submission
+	mkdir submission
+	cp $(TARGET).cpp submission/
+	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
+	@echo "Ready to upload: submission/"; ls -1 submission
 
 clean:
 	rm -f $(TARGET) $(GLAD_OBJ)

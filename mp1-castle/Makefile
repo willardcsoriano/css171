@@ -9,7 +9,7 @@ VIDEO  := castle2d_sample_output.mp4
 APP_WIDTH  := 512
 APP_HEIGHT := 412
 
-.PHONY: all run video preview export compare clean
+.PHONY: all run video preview export compare submission clean
 
 all: $(TARGET)
 
@@ -44,6 +44,15 @@ export: $(TARGET)
 compare: export
 	compare -metric AE attempt.png to-copy.png diff.png || true
 	@echo "Diff image written to diff.png (highlighted pixels = mismatches)"
+
+# Exactly the files the handout asks you to upload (via a Google Drive
+# link, not zipped): the source file and the sample output video
+submission:
+	rm -rf submission
+	mkdir submission
+	cp $(TARGET).cpp submission/
+	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
+	@echo "Ready to upload: submission/"; ls -1 submission
 
 clean:
 	rm -f $(TARGET) attempt.png diff.png

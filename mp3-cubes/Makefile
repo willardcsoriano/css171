@@ -13,7 +13,7 @@ SUBMISSION := $(TARGET).zip
 APP_WIDTH  := 1000
 APP_HEIGHT := 700
 
-.PHONY: all run video preview zip clean
+.PHONY: all run video preview zip submission clean
 
 all: $(TARGET)
 
@@ -45,6 +45,13 @@ zip:
 	cd build && python3 -m zipfile -c ../$(SUBMISSION) $(TARGET)
 	rm -rf build
 	@echo "Generated $(SUBMISSION)"
+
+# Exactly the file the handout asks you to upload: the zipped project folder
+submission: zip
+	rm -rf submission
+	mkdir submission
+	cp $(SUBMISSION) submission/
+	@echo "Ready to upload: submission/"; ls -1 submission
 
 clean:
 	rm -f $(TARGET) $(GLAD_OBJ) $(SUBMISSION)
