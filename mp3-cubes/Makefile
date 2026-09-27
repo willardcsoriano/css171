@@ -39,18 +39,19 @@ preview:
 zip:
 	rm -rf build/$(TARGET) $(SUBMISSION)
 	mkdir -p build/$(TARGET)/third_party/glad
-	cp $(TARGET).cpp Makefile build/$(TARGET)/
+	cp $(TARGET).cpp Makefile BUILD.txt build/$(TARGET)/
 	cp -r third_party/glad/include third_party/glad/src build/$(TARGET)/third_party/glad/
 	rm -f build/$(TARGET)/third_party/glad/src/*.o
 	cd build && python3 -m zipfile -c ../$(SUBMISSION) $(TARGET)
 	rm -rf build
 	@echo "Generated $(SUBMISSION)"
 
-# Exactly the file the handout asks you to upload: the zipped project folder
+# Everything to upload: the zipped project folder and the sample output video
 submission: zip
 	rm -rf submission
 	mkdir submission
 	cp $(SUBMISSION) submission/
+	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
 	@echo "Ready to upload: submission/"; ls -1 submission
 
 clean:

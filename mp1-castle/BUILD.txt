@@ -1,0 +1,20 @@
+CSS171 MP1 - 2D Castle (Willard Soriano)
+========================================
+
+Files
+  CSS171_MP1_Soriano.cpp                source file
+  third_party/stb_image_write.h         header the source includes (keep it
+                                        in third_party/ next to the .cpp)
+  Makefile                              build script for Linux
+  CSS171_MP1_Soriano_sample_output.mp4  sample output video
+
+Requirements
+  OpenGL and FreeGLUT.
+
+Build and run on Linux (Debian/Ubuntu)
+  sudo apt install g++ make libglut-dev
+  make run
+
+Build and run in Visual Studio
+  Add CSS171_MP1_Soriano.cpp to a project that links OpenGL and FreeGLUT,
+  keep the third_party folder next to the .cpp, then build and run.
