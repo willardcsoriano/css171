@@ -53,6 +53,9 @@ submission: zip
 	cp $(SUBMISSION) submission/
 	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
 	@echo "Ready to upload: submission/"; ls -1 submission
+	@echo "How to submit: the handout names the file (MP3_CSS171_Surname.zip) but gives"
+	@echo "no upload method (no Google Drive link is required). Submit the zip and the"
+	@echo "video through the Machine Problem 3.1 item on Blackboard."
 
 clean:
 	rm -f $(TARGET) $(GLAD_OBJ) $(SUBMISSION)
