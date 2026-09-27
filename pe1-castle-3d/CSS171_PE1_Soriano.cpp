@@ -28,7 +28,7 @@ KEY FEATURES:
 5. Lighting: directional sunlight plus sky/ground hemisphere ambient, with
    normals transformed by each part's normal matrix.
 
-RUN FROM THIS FOLDER so the relative textures/ paths resolve.
+RUN FROM THE FOLDER THAT CONTAINS textures/ so the relative paths resolve.
 CONTROLS: ESC closes the window.
 ================================================================================
 */
@@ -382,7 +382,7 @@ GLuint loadTexture(const TextureFile &file) {
     unsigned char *pixels = stbi_load(file.path, &width, &height, &channels, STBI_rgb_alpha);
     if (pixels == nullptr) {
         std::cerr << "Failed to load texture '" << file.path << "': " << stbi_failure_reason()
-                  << "\n(run the program from the pe1-castle-3d folder)\n";
+                  << "\n(run the program from the folder that contains textures/)\n";
         return 0;
     }
 
