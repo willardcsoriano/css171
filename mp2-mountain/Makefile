@@ -9,7 +9,7 @@ VIDEO  := mountain_sample_output.mp4
 APP_WIDTH  := 1000
 APP_HEIGHT := 700
 
-.PHONY: all run video preview clean
+.PHONY: all run video preview submission clean
 
 all: $(TARGET)
 
@@ -27,6 +27,15 @@ video:
 # Same as video, plus preview.png and preview.gif cropped to the program window
 preview:
 	RECORD_PREVIEW=1 ../tools/record-demo.sh $(TARGET) $(APP_WIDTH) $(APP_HEIGHT) 10 $(VIDEO)
+
+# Exactly the files the handout asks you to upload (via a Google Drive
+# link, not zipped): the source file and the sample output video
+submission:
+	rm -rf submission
+	mkdir submission
+	cp $(TARGET).cpp submission/
+	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
+	@echo "Ready to upload: submission/"; ls -1 submission
 
 clean:
 	rm -f $(TARGET)
