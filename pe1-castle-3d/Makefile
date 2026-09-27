@@ -38,14 +38,19 @@ preview:
 textures:
 	python3 tools/generate_textures.py textures
 
-# Exactly the files the handout asks you to upload (via a Google Drive
-# link, not zipped): the source file and the sample output video
+# Everything to upload (via a Google Drive link, not zipped): the source,
+# everything it needs at build and run time (third_party/, textures/),
+# build files, and the sample output video
 submission:
 	rm -rf submission
-	mkdir submission
-	cp $(TARGET).cpp submission/
+	mkdir -p submission/third_party/glad
+	cp $(TARGET).cpp Makefile BUILD.txt submission/
+	cp -r textures submission/
+	cp third_party/stb_image.h submission/third_party/
+	cp -r third_party/glad/include third_party/glad/src submission/third_party/glad/
+	rm -f submission/third_party/glad/src/*.o
 	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
-	@echo "Ready to upload: submission/"; ls -1 submission
+	@echo "Ready to upload: submission/"; find submission -type f | sort
 
 clean:
 	rm -f $(TARGET) $(GLAD_OBJ)

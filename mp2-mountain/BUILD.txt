@@ -1,0 +1,18 @@
+CSS171 MP2 - 2D Alpine Mountain (Willard Soriano)
+=================================================
+
+Files
+  CSS171_MP2_Soriano.cpp                source file
+  Makefile                              build script for Linux
+  CSS171_MP2_Soriano_sample_output.mp4  sample output video
+
+Requirements
+  OpenGL and FreeGLUT.
+
+Build and run on Linux (Debian/Ubuntu)
+  sudo apt install g++ make libglut-dev
+  make run
+
+Build and run in Visual Studio
+  Add CSS171_MP2_Soriano.cpp to a project that links OpenGL and FreeGLUT,
+  then build and run.

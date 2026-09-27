@@ -1,0 +1,24 @@
+CSS171 MP3 - Three Rotating Cubes (Willard Soriano)
+===================================================
+
+Files (inside MP3_CSS171_Soriano.zip)
+  MP3_CSS171_Soriano.cpp    source file
+  third_party/glad/         OpenGL 3.3 core loader (glad.c and its headers)
+  Makefile                  build script for Linux
+  BUILD.txt                 this file
+
+Requirements
+  OpenGL 3.3, GLFW, GLM, and GLAD (included in third_party/glad).
+
+Build and run on Linux (Debian/Ubuntu)
+  sudo apt install g++ make libglfw3-dev libglm-dev
+  make run
+
+Build and run in Visual Studio
+  Use the course's "Visual Studio and OpenGL Setup" (GLFW, GLAD, GLM).
+  Add MP3_CSS171_Soriano.cpp to the project. If the project does not already
+  compile its own glad.c, also add third_party/glad/src/glad.c and put
+  third_party/glad/include on the include path. Build and run.
+
+Controls
+  ESC closes the window.

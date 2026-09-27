@@ -45,12 +45,13 @@ compare: export
 	compare -metric AE attempt.png to-copy.png diff.png || true
 	@echo "Diff image written to diff.png (highlighted pixels = mismatches)"
 
-# Exactly the files the handout asks you to upload (via a Google Drive
-# link, not zipped): the source file and the sample output video
+# Everything to upload (via a Google Drive link, not zipped): the source,
+# the header it includes, build files, and the sample output video
 submission:
 	rm -rf submission
-	mkdir submission
-	cp $(TARGET).cpp submission/
+	mkdir -p submission/third_party
+	cp $(TARGET).cpp Makefile BUILD.txt submission/
+	cp third_party/stb_image_write.h submission/third_party/
 	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
 	@echo "Ready to upload: submission/"; ls -1 submission
 

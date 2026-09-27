@@ -28,12 +28,12 @@ video:
 preview:
 	RECORD_PREVIEW=1 ../tools/record-demo.sh $(TARGET) $(APP_WIDTH) $(APP_HEIGHT) 10 $(VIDEO)
 
-# Exactly the files the handout asks you to upload (via a Google Drive
-# link, not zipped): the source file and the sample output video
+# Everything to upload (via a Google Drive link, not zipped): the source,
+# build files, and the sample output video
 submission:
 	rm -rf submission
 	mkdir submission
-	cp $(TARGET).cpp submission/
+	cp $(TARGET).cpp Makefile BUILD.txt submission/
 	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
 	@echo "Ready to upload: submission/"; ls -1 submission
 
