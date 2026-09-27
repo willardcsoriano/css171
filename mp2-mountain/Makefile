@@ -5,7 +5,7 @@ LDLIBS   := -lglut -lGL -lGLU
 TARGET := CSS171_MP2_Soriano
 VIDEO  := mountain_sample_output.mp4
 
-# Program window size (matches the source); previews are cropped to it
+# Program window size (matches the source); the demo layout is built around it
 APP_WIDTH  := 1000
 APP_HEIGHT := 700
 
@@ -19,18 +19,14 @@ $(TARGET): $(TARGET).cpp
 run: $(TARGET)
 	./$(TARGET)
 
-# Record a demo video on a virtual screen: a terminal builds the program
-# from source on camera, then runs it for 10 seconds (see tools/record-demo.sh)
+# Record a 1920x1080 demo video: a terminal builds the program from source
+# on camera, then runs it for 10 seconds (see tools/record-demo.sh)
 video:
-	../tools/record-demo.sh $(TARGET) 10 $(VIDEO)
+	../tools/record-demo.sh $(TARGET) $(APP_WIDTH) $(APP_HEIGHT) 10 $(VIDEO)
 
-# Still frame and short GIF of the running program, cropped from the video
-preview: video
-	ffmpeg -y -loglevel error -sseof -3 -i $(VIDEO) -vf crop=$(APP_WIDTH):$(APP_HEIGHT):0:0 \
-		-frames:v 1 -update 1 preview.png
-	ffmpeg -y -loglevel error -sseof -6 -t 4 -i $(VIDEO) \
-		-vf "crop=$(APP_WIDTH):$(APP_HEIGHT):0:0,fps=10,scale=500:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" preview.gif
-	@echo "Generated preview.png and preview.gif"
+# Same as video, plus preview.png and preview.gif cropped to the program window
+preview:
+	RECORD_PREVIEW=1 ../tools/record-demo.sh $(TARGET) $(APP_WIDTH) $(APP_HEIGHT) 10 $(VIDEO)
 
 clean:
 	rm -f $(TARGET)
