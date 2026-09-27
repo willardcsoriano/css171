@@ -22,7 +22,7 @@ $(GLAD_OBJ): third_party/glad/src/glad.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(TARGET).cpp $(GLAD_OBJ)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(TARGET).cpp $(GLAD_OBJ) -o $@ $(LDLIBS)
 
 run: $(TARGET)
 	./$(TARGET)
