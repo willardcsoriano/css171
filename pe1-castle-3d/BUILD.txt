@@ -1,14 +1,14 @@
 CSS171 PE1 - Rotating Textured 3D Castle (Willard Soriano)
 =========================================================
 
-Files
-  CSS171_PE1_Soriano.cpp                source file
-  textures/                             the six texture images the program
-                                        loads (keep this folder next to the .cpp)
-  third_party/glad/                     OpenGL 3.3 core loader (glad.c + headers)
-  third_party/stb_image.h               image loader the source includes
-  Makefile                              build script for Linux
-  CSS171_PE1_Soriano_sample_output.mp4  sample output video
+Files (inside CSS171_PE1_Soriano.zip)
+  CSS171_PE1_Soriano.cpp    source file
+  textures/                 the six texture images the program loads
+                            (keep this folder next to the .cpp)
+  third_party/glad/         OpenGL 3.3 core loader (glad.c + headers)
+  third_party/stb_image.h   image loader the source includes
+  Makefile                  build script for Linux
+  BUILD.txt                 this file
 
 Requirements
   OpenGL 3.3, GLFW, GLM, GLAD (included) and stb_image (included).
