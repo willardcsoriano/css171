@@ -637,39 +637,44 @@ void drawSummitBeacon() {
     }
 }
 
-// Draw foothills and foreground terrain along the base of the mountains
+// Draw foothills and foreground terrain along the base of the mountains.
+// Every hill's base sits on the ground line so it rises out of the meadow
+// (the meadow band below covers the bases), and the outer hills extend past
+// the window edges so they roll off-screen instead of ending at the frame.
 void drawFoothills() {
+    const float GROUND_Y = 110.0f;
+
     glBegin(GL_TRIANGLES);
 
-    // Left rolling foothill
+    // Left rolling foothills (back, then front)
     setColor(0.12f, 0.18f, 0.16f);
-    glVertex2f(0.0f,   160.0f);
-    glVertex2f(280.0f, 160.0f);
-    glVertex2f(130.0f, 210.0f);
+    glVertex2f(-150.0f, GROUND_Y);
+    glVertex2f(300.0f,  GROUND_Y);
+    glVertex2f(120.0f,  215.0f);
 
     setColor(0.09f, 0.14f, 0.12f);
-    glVertex2f(0.0f,   110.0f);
-    glVertex2f(320.0f, 110.0f);
-    glVertex2f(160.0f, 175.0f);
+    glVertex2f(-100.0f, GROUND_Y);
+    glVertex2f(340.0f,  GROUND_Y);
+    glVertex2f(170.0f,  178.0f);
 
-    // Right rolling foothill
+    // Right rolling foothills (back, then front)
     setColor(0.10f, 0.16f, 0.14f);
-    glVertex2f(680.0f,  160.0f);
-    glVertex2f(1000.0f, 160.0f);
-    glVertex2f(840.0f,  215.0f);
+    glVertex2f(680.0f,  GROUND_Y);
+    glVertex2f(1150.0f, GROUND_Y);
+    glVertex2f(850.0f,  218.0f);
 
     setColor(0.08f, 0.13f, 0.11f);
-    glVertex2f(640.0f,  110.0f);
-    glVertex2f(1000.0f, 110.0f);
-    glVertex2f(820.0f,  170.0f);
+    glVertex2f(640.0f,  GROUND_Y);
+    glVertex2f(1100.0f, GROUND_Y);
+    glVertex2f(820.0f,  172.0f);
 
-    // Central meadow base fill
+    // Central meadow band the forest stands on
     setColor(0.08f, 0.13f, 0.12f);
-    glVertex2f(0.0f, 110.0f);
-    glVertex2f((float)WINDOW_WIDTH, 110.0f);
+    glVertex2f(0.0f, GROUND_Y);
+    glVertex2f((float)WINDOW_WIDTH, GROUND_Y);
     glVertex2f((float)WINDOW_WIDTH, 150.0f);
 
-    glVertex2f(0.0f, 110.0f);
+    glVertex2f(0.0f, GROUND_Y);
     glVertex2f((float)WINDOW_WIDTH, 150.0f);
     glVertex2f(0.0f, 150.0f);
 
@@ -768,41 +773,39 @@ void drawForest() {
     }
 }
 
-// Draw calm alpine lake reflection pool across bottom of viewport
-void drawLakeWater() {
+// Draw solid foreground meadow from the ground line to the bottom edge:
+// a gradient that continues the meadow band's color and darkens toward the
+// viewer, with two low rolling mounds for depth.
+void drawForegroundMeadow() {
+    const float GROUND_Y = 110.0f;
+
     glBegin(GL_TRIANGLES);
 
-    // Lake water surface gradient (2 triangles)
-    // Deep reflective twilight water
-    setColor(0.06f, 0.08f, 0.16f);
-    glVertex2f(0.0f, 110.0f);
-    glVertex2f((float)WINDOW_WIDTH, 110.0f);
-    setColor(0.03f, 0.04f, 0.09f);
+    // Ground gradient (2 triangles): meadow green at the ground line fading
+    // to deep shadow at the bottom of the window
+    setColor(0.08f, 0.13f, 0.12f);
+    glVertex2f(0.0f, GROUND_Y);
+    glVertex2f((float)WINDOW_WIDTH, GROUND_Y);
+    setColor(0.03f, 0.06f, 0.05f);
     glVertex2f((float)WINDOW_WIDTH, 0.0f);
 
-    setColor(0.06f, 0.08f, 0.16f);
-    glVertex2f(0.0f, 110.0f);
-    setColor(0.03f, 0.04f, 0.09f);
+    setColor(0.08f, 0.13f, 0.12f);
+    glVertex2f(0.0f, GROUND_Y);
+    setColor(0.03f, 0.06f, 0.05f);
     glVertex2f((float)WINDOW_WIDTH, 0.0f);
     glVertex2f(0.0f, 0.0f);
 
-    // Soft inverted mountain reflection in the lake
-    setColor(0.09f, 0.11f, 0.20f);
-    glVertex2f(500.0f, 20.0f);
-    glVertex2f(380.0f, 110.0f);
-    glVertex2f(620.0f, 110.0f);
+    // Low rolling mounds in the foreground (extend past the window edges)
+    setColor(0.06f, 0.11f, 0.09f);
+    glVertex2f(-100.0f, 0.0f);
+    glVertex2f(420.0f,  0.0f);
+    glVertex2f(160.0f,  55.0f);
 
-    glEnd();
+    setColor(0.05f, 0.10f, 0.08f);
+    glVertex2f(560.0f,  0.0f);
+    glVertex2f(1100.0f, 0.0f);
+    glVertex2f(820.0f,  48.0f);
 
-    // Subtle water surface shimmer lines
-    glLineWidth(1.5f);
-    setColor(0.18f, 0.22f, 0.35f);
-    glBegin(GL_LINES);
-    glVertex2f(220.0f, 75.0f); glVertex2f(340.0f, 75.0f);
-    glVertex2f(460.0f, 55.0f); glVertex2f(580.0f, 55.0f);
-    glVertex2f(650.0f, 70.0f); glVertex2f(740.0f, 70.0f);
-    glVertex2f(380.0f, 35.0f); glVertex2f(490.0f, 35.0f);
-    glVertex2f(520.0f, 25.0f); glVertex2f(620.0f, 25.0f);
     glEnd();
 }
 
@@ -817,8 +820,8 @@ void renderScene() {
     drawAlpineCabin();
     drawSummitBeacon();
     drawFoothills();
+    drawForegroundMeadow();
     drawForest();
-    drawLakeWater();
 }
 
 // FreeGLUT Display Callback
