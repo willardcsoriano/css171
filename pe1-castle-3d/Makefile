@@ -63,6 +63,9 @@ submission: zip
 	cp $(TARGET).cpp $(SUBMISSION) submission/
 	cp $(VIDEO) submission/$(TARGET)_sample_output.mp4
 	@echo "Ready to upload: submission/"; ls -1 submission
+	@echo "How to submit (per the handout): put these files in a Google Drive folder,"
+	@echo "share it so your instructor can open it, and submit ONLY the Drive link"
+	@echo "on Blackboard (BB). Do not upload the files to BB directly."
 
 clean:
 	rm -f $(TARGET) $(GLAD_OBJ) $(SUBMISSION)
