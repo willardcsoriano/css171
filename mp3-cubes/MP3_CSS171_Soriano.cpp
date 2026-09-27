@@ -19,9 +19,10 @@ KEY FEATURES:
 2. Flat Face Shading Without Extra Vertices: the fragment shader derives each
    face's normal from screen-space derivatives (dFdx/dFdy), so every face is
    lit distinctly even though the 8 corner vertices are shared.
-3. Correct Transparency: the core is drawn opaque first; each glass shell is
-   then drawn back faces first, front faces second, with depth writes off, so
-   blending composites in back-to-front order.
+3. Correct Transparency: the core is drawn opaque first, then the glass
+   shells from inner to outer. Only each shell's front (camera-facing) walls
+   are drawn, so the nested shells blend in back-to-front order and the far
+   walls never show through as extra "phantom" cube outlines.
 4. Centered Layout: all cubes share the world origin, the camera looks at it,
    and the projection follows the window's aspect ratio on resize.
 
@@ -134,8 +135,6 @@ out vec4 FragColor;
 void main() {
     // The derivatives of position across the screen span the triangle's
     // plane, so their cross product is the face normal (constant per face).
-    // It always points toward the camera, which is also the correct normal
-    // for the inside walls of a glass shell seen through its front.
     vec3 faceNormal = normalize(cross(dFdx(vViewPosition), dFdy(vViewPosition)));
 
     float ambient = 0.30;
@@ -243,7 +242,8 @@ glm::mat4 cubeModelMatrix(const CubeSpec &cube, float timeSeconds) {
     return model;
 }
 
-// Draw every cube; opaque ones first, then glass shells back-to-front
+// Draw every cube in table order: the opaque core, then the glass shells
+// from inner to outer. Back faces are culled for all of them.
 void drawCubes(GLuint program, GLuint vao, float timeSeconds) {
     GLint modelLocation = glGetUniformLocation(program, "uModel");
     GLint colorLocation = glGetUniformLocation(program, "uColor");
@@ -258,23 +258,15 @@ void drawCubes(GLuint program, GLuint vao, float timeSeconds) {
         glUniform3fv(colorLocation, 1, glm::value_ptr(cube.color));
         glUniform1f(alphaLocation, cube.alpha);
 
-        if (cube.alpha >= 1.0f) {
-            // Opaque: normal depth-tested draw of the visible (front) faces
-            glCullFace(GL_BACK);
-            glDrawElements(GL_TRIANGLES, CUBE_INDEX_COUNT, GL_UNSIGNED_INT, (void *)0);
-            continue;
-        }
-
-        // Glass: keep testing against depth but stop writing it, so the
-        // shell never hides what lies behind it; then draw far walls first
-        // (cull front faces) and near walls second (cull back faces).
-        glDepthMask(GL_FALSE);
-        glCullFace(GL_FRONT);
+        // Glass keeps testing depth but stops writing it, so a shell never
+        // hides anything drawn after it. Its far walls are culled: seen
+        // through the glass, their smaller perspective outline would read
+        // as an extra cube.
+        bool isGlass = cube.alpha < 1.0f;
+        glDepthMask(isGlass ? GL_FALSE : GL_TRUE);
         glDrawElements(GL_TRIANGLES, CUBE_INDEX_COUNT, GL_UNSIGNED_INT, (void *)0);
-        glCullFace(GL_BACK);
-        glDrawElements(GL_TRIANGLES, CUBE_INDEX_COUNT, GL_UNSIGNED_INT, (void *)0);
-        glDepthMask(GL_TRUE);
     }
+    glDepthMask(GL_TRUE);
 
     glBindVertexArray(0);
 }
@@ -326,6 +318,7 @@ int main() {
     // Fixed pipeline state: depth testing, face culling, alpha blending, MSAA
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_MULTISAMPLE);
