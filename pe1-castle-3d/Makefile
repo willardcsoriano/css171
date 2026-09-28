@@ -7,7 +7,10 @@ LDLIBS   := -lglfw -lGL -ldl
 TARGET     := CSS171_PE1_Soriano
 GLAD_OBJ   := third_party/glad/src/glad.o
 VIDEO      := castle_sample_output.mp4
-SUBMISSION := $(TARGET).zip
+# Blackboard course ID (course_section_term); the handout's zip name pattern
+# is <course-section>_<activity>_<Surname>.zip
+COURSE_ID  := CSS171_FOPM01_1Q2627
+SUBMISSION := $(COURSE_ID)_PE1_Soriano.zip
 
 # Program window size (matches the source); the demo layout is built around it
 APP_WIDTH  := 1000
