@@ -1,7 +1,7 @@
 CSS171 PE1 - Rotating Textured 3D Castle (Willard Soriano)
 =========================================================
 
-Files (inside CSS171_PE1_Soriano.zip)
+Files (inside CSS171_FOPM01_1Q2627_PE1_Soriano.zip)
   CSS171_PE1_Soriano.cpp    source file
   textures/                 the six texture images the program loads
                             (keep this folder next to the .cpp)
